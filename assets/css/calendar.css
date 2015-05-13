@@ -1,0 +1,83 @@
+#calmain table {
+	font-size: 15px;
+	font-weight: bold;
+	width: 100%;
+}
+#calmain td, #calmain th {
+	width: 14.285%;
+	height: 110px;
+	text-align: center;
+	vertical-align: middle;
+	position: relative;
+	padding:0;
+
+}
+
+#calmain td{vertical-align: top;}
+#calmain td .label{text-align: right;padding: 3px;}
+
+#calmain th {
+	height: 30px;
+	font-weight: bold;
+	font-size: 11px;
+}
+#calmain td:hover, #calmain th:hover {
+	
+}
+#calmain td.date_has_event {
+	
+}
+#calmain td.date_has_event:hover {
+
+}
+#calmain td.padding {
+	background: none;
+	border: 0;
+}
+#calmain td#today {
+
+}
+#calmain td#today:hover {
+
+}
+#calmain .events {
+	position: relative;
+}
+#calmain .events ul {
+	text-align: left;
+	z-index: 1000;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-border-radius: 3px;
+	list-style: none;
+	margin-bottom: 5px;
+}
+#calmain .events li {
+	padding: 0 3px 0 10px;
+	font-size: 11px;	
+}
+#calmain .events li a{color: #333;}
+#calmain .events li span {
+	font-weight: normal;
+	text-decoration: underline;
+}
+
+#calmain th a{
+text-decoration:none;
+font-size:120%;
+font-weight:bold;
+color: #000;
+outline-width:0;
+}
+
+#content textarea, #content input{
+	border: 1px solid #ccc;
+}
+/* Calendar */
+
+#calmain{
+	width: 100%;
+	float: left;
+}
+
