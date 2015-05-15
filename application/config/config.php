@@ -14,7 +14,7 @@
 | path to your installation.
 |
 */
-$config['base_url']	= 'http://sales-v2.communicationshead.com';
+$config['base_url']	= '';
 
 /*
 |--------------------------------------------------------------------------

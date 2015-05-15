@@ -3,6 +3,17 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title><?php echo $title?></title>
+
+<base href="<?php echo base_url() ?>" />
+
+<link type="text/css" href="<?php echo base_url()?>assets/css/styles.css" rel="stylesheet" />
+<link type="text/css" href="<?php echo base_url()?>assets/css/jqueryslidemenu.css" rel="stylesheet" />
+<link type="text/css" href="<?php echo base_url()?>assets/css/overlay-apple.css" rel="stylesheet" />
+<link type="text/css" href="<?php echo base_url()?>assets/css/redmond/jquery-ui.css" rel="stylesheet" />
+<link type="text/css" href="<?php echo base_url()?>assets/css/jPagination.css" rel="stylesheet" />
+<link type="text/css" href="<?php echo base_url()?>assets/css/fancybox/jquery.fancybox-1.3.4.css" rel="stylesheet" />
+
+
 <script src="<?php echo base_url()?>assets/js/jquery-1.6.2.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="<?php echo base_url()?>assets/js/jquery-ui-1.8.12.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="<?php echo base_url()?>assets/js/ckeditor/ckeditor.js" type="text/javascript" ></script>
@@ -17,22 +28,13 @@
 <script src="<?php echo base_url()?>assets/js/jquery.combobox.js" type="text/javascript" charset="utf-8"></script>	
 <script src="<?php echo base_url()?>assets/js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
 <script src="<?php echo base_url()?>assets/js/themeswitchertool.js" type="text/javascript" charset="utf-8"></script>
-
-
-<base href="<?php echo base_url() ?>" />
 <script type="text/javascript" src="<?php echo base_url()?>assets/js/swfobject.js"></script>
-
-<link type="text/css" href="<?php echo base_url()?>assets/css/styles.css" rel="stylesheet" />
-<link type="text/css" href="<?php echo base_url()?>assets/css/jqueryslidemenu.css" rel="stylesheet" />
-<link type="text/css" href="<?php echo base_url()?>assets/css/overlay-apple.css" rel="stylesheet" />
-<link type="text/css" href="<?php echo base_url()?>assets/css/redmond/jquery-ui.css" rel="stylesheet" />
-<link type="text/css" href="<?php echo base_url()?>assets/css/jPagination.css" rel="stylesheet" />
-<link type="text/css" href="<?php echo base_url()?>assets/css/fancybox/jquery.fancybox-1.3.4.css" rel="stylesheet" />
 
 <?php $this->load->view('myJSfunctions')?>
 
 
 <script type="text/javascript">
+
 function noselect(){
 	<?php if(userPrivilege('canCopy')!=1):?>
 	$("#main-container,.contentWrap").disableTextSelect();
@@ -92,6 +94,64 @@ $(document).ready(function(){
     setInterval('updateClock()',1000);
 });
 </script>
+
+
+<script type="text/javascript">
+var zIndex = 510; 
+function make_draggable(elements)
+{
+    /* Elements is a jquery object: */
+    elements.draggable({
+        start:function(e,ui){ ui.helper.css('z-index',++zIndex); },
+        stop:function(e,ui){
+    		var fdata = {
+					zIndex: zIndex,
+					xpos :$(this).css('left'),
+					ypos :$(this).css('top'),
+					id  : $(this).attr('noteid'),
+					ajax:1
+				};
+    		$.ajax({
+    			url:'<?php echo site_url('user/saveNotePos')?>',
+    			type:'POST',
+    			data:fdata,
+    			success : function(msg){
+    				//alert(msg);
+    			}
+    		});
+        }
+    });
+}
+$(document).ready(function(){
+	
+	$(".stickynote").live("mouseover",function(){
+		$(this).find("img").removeClass("hidden");
+	});
+	$(".stickynote").live("mouseout",function(){
+		$(this).find("img").addClass("hidden");
+	});
+	
+	make_draggable($(".stickynote"));
+
+	$("#stickynote #close").live("click",function(){
+		var note = $(this).parent().parent();
+		note.remove();
+		var fdata = {
+					id : $(this).attr('class'),
+					ajax : 1
+				};
+		$.ajax({
+			url:'<?php echo site_url('user/removeNote')?>',
+			type:'POST',
+			data:fdata,
+			success : function(msg){
+			}
+		});
+	});
+});
+
+</script>	
+
 </head>
 
 <body onload="noselect()">
@@ -240,61 +300,9 @@ $(document).ready(function(){
 		</div>
 	</div>
 	<?php endforeach;?>
-<script type="text/javascript">
-var zIndex = 510; 
-function make_draggable(elements)
-{
-    /* Elements is a jquery object: */
-    elements.draggable({
-        start:function(e,ui){ ui.helper.css('z-index',++zIndex); },
-        stop:function(e,ui){
-    		var fdata = {
-					zIndex: zIndex,
-					xpos :$(this).css('left'),
-					ypos :$(this).css('top'),
-					id  : $(this).attr('noteid'),
-					ajax:1
-				};
-    		$.ajax({
-    			url:'<?php echo site_url('user/saveNotePos')?>',
-    			type:'POST',
-    			data:fdata,
-    			success : function(msg){
-    				//alert(msg);
-    			}
-    		});
-        }
-    });
-}
-$(document).ready(function(){
-	
-	$(".stickynote").live("mouseover",function(){
-		$(this).find("img").removeClass("hidden");
-	});
-	$(".stickynote").live("mouseout",function(){
-		$(this).find("img").addClass("hidden");
-	});
-	
-	make_draggable($(".stickynote"));
 
-	$("#stickynote #close").live("click",function(){
-		var note = $(this).parent().parent();
-		note.remove();
-		var fdata = {
-					id : $(this).attr('class'),
-					ajax : 1
-				};
-		$.ajax({
-			url:'<?php echo site_url('user/removeNote')?>',
-			type:'POST',
-			data:fdata,
-			success : function(msg){
-			}
-		});
-	});
-});
-
-</script>	
 <?php endif;?>	
+
+
 </body>
 </html> 

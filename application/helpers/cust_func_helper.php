@@ -309,3 +309,46 @@
 				
 		return in_array($date, $holiday) ? TRUE : FALSE;
 	}
+
+
+	function readXLSFile($xls_file) {
+
+		require_once APPPATH . 'libraries/phpexcel/PHPExcel/IOFactory.php';
+		
+		try {
+
+			$inputFileType 	= PHPExcel_IOFactory::identify($xls_file);
+			$objReader 		= PHPExcel_IOFactory::createReader($inputFileType);
+			$objPHPExcel 	= $objReader->load($xls_file);
+
+		} catch(Exception $e) {
+
+			return array(
+					'status'	=> false,
+					'message'	=> 'Error loading file "'.pathinfo($xls_file,PATHINFO_BASENAME).'": '.$e->getMessage()
+				);
+
+		}
+
+		$sheet 			= $objPHPExcel->getSheet(0); 
+		$highestRow 	= $sheet->getHighestRow(); 
+		$highestColumn 	= $sheet->getHighestColumn();
+		$items			= array();
+
+		//  Loop through each row of the worksheet in turn
+		for ($row = 2; $row <= $highestRow; $row++) { 
+
+			$rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, '', FALSE, FALSE, FALSE);
+			if (isset($rowData[0])) {
+				$items[] = $rowData[0];
+			}
+
+		}
+
+		return array(
+				'status'	=> true,
+				'data'		=> $items
+			);
+
+
+	}

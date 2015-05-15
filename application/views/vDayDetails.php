@@ -1,4 +1,11 @@
+<script src="<?php echo base_url()?>assets/js/jquery.ui.widget.js"></script>
+<script src="<?php echo base_url()?>assets/js/jquery.iframe-transport.js"></script>
+<script src="<?php echo base_url()?>assets/js/jquery.fileupload.js"></script>
+<link type="text/css" href="<?php echo base_url()?>assets/css/jquery.fileupload-ui.css" rel="stylesheet" />
+<link type="text/css" href="<?php echo base_url()?>assets/css/bootstrap.min.css" rel="stylesheet" />
+<link type="text/css" href="<?php echo base_url()?>assets/css/jquery.fileupload.css" rel="stylesheet" />
 <script type="text/javascript">
+
 $(document).ready(function(){
 
 	/*
@@ -41,6 +48,24 @@ $(document).ready(function(){
 		}
 	});	
 
+	$("#open_upload_form").fancybox({
+		'overlayOpacity'	: .4,
+		'padding'			: 0,
+		'centerOnScroll'	: true,
+		'autoScale'			: true,
+		'autoDimensions'	: true,
+		'hideOnOverlayClick': false,
+		onStart 			: function () {
+			$('#uploadMessage').text('Upload excel file to process.').removeClass('text-danger');
+			$('#uploadedXLSContent').html('');
+		},
+		'onComplete'		:	function(){
+			$.fancybox.center();
+			hideMyLoader();
+		}
+	});	
+
+
 
 	$(".tableList th").each(function(){			 
 		$(this).addClass("ui-state-default");			 
@@ -66,6 +91,29 @@ $(document).ready(function(){
 	$("#resultpages #pagination span,#resultpages #pagination strong").addClass('button');
 	$('.button').button();
 	$("#resultpages #pagination strong").addClass('ui-state-disabled');
+
+
+	$('#fileupload').fileupload({
+		url: './index.php/main/uploadxls/',
+		dataType: 'json',
+		done: function (e, data) {
+			var response 	= data.result;
+			if (response.status) {
+				console.log(response.data);
+			} else {
+				$('#uploadMessage').text(response.message).addClass('text-danger');
+				$('#progress .progress-bar').css('width', '0%');
+			}
+			hideMyLoader();
+		},
+		progressall: function (e, data) {
+			showMyLoader();
+			var progress = parseInt(data.loaded / data.total * 100, 10);
+			$('#progress .progress-bar').css('width', progress + '%');
+		}
+	})
+	.prop('disabled', !$.support.fileInput)
+	.parent().addClass($.support.fileInput ? undefined : 'disabled');
 			
 });
 </script>
@@ -77,6 +125,31 @@ $(document).ready(function(){
 </div>
 <div id="eventdetailsholder" ><!-- CONTENT BOX FOR EVENT DETAILS  -->
 	<div id="moredetailspanel">
+	</div>
+</div>
+
+<div id="upload_form" class="hidden">
+	<div class="contentEditor ui-widget-content" id="uploadFormDiv" style="width: 1200px;height: 600px;">
+		<div class="editor-header" style="cursor: default;">
+			Upload Excel Leads
+		</div>
+		<div class="uploadFormBody" style="padding: 10px;">
+			<div style="padding: 10px;">
+				<span class="btn btn-success fileinput-button">
+					<i class="glyphicon glyphicon-plus"></i>
+					<span>Upload</span>
+				<!-- The file input field used as target for the file upload widget -->
+					<input id="fileupload" type="file" name="xmlfile">
+				</span>
+				<span id='uploadMessage'>Upload excel file to process.</span>
+				<br>
+				<!-- The global progress bar -->
+				<div id="progress" class="progress" style="margin-top:10px;width:240px;">
+					<div class="progress-bar progress-bar-success"></div>
+				</div>
+			</div>
+			<div id="uploadedXLSContent"></div>
+		</div>
 	</div>
 </div>
 
@@ -283,6 +356,7 @@ $(document).ready(function(){
 	<span>Program : </span><b><?php echo $program->title." ".$program->batch?></b><br>
 	<?php if($showalldays==""):?><span>Date : </span><b><?php echo date("l, F j, Y",strtotime($date->date))?></b><br>
 			<a class="button button_img" id="addevent" href="#eventFormDiv"><img src="assets/images/icons/contact_new.png">New Event</a>
+			<a class="button button_img" id="open_upload_form" href="#uploadFormDiv"><img src="assets/images/icons/report_excel.png">Upload</a>
 	<?php else:?><span>Date : </span><b><?php echo date("F j, Y",strtotime($program->dateStart))?> - <?php echo date("F j, Y",strtotime($program->dateEnd))?></b><br>
 	<?php endif;?>
 </div>

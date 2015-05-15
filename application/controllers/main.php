@@ -1620,6 +1620,28 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 		}
 		return $i;
 	}	
+
+	public function uploadxls() {
+
+		$config['upload_path'] = './uploads/';
+		$config['allowed_types'] = 'xlsx|xls';
+
+		$this->load->library('upload', $config);
+
+		if ( ! $this->upload->do_upload('xmlfile')) {
+			echo json_encode(array(
+					'status'	=> false,
+					'message'	=> $this->upload->display_errors('','')
+				));
+		} else {
+
+			$info 	= $this->upload->data();
+			echo json_encode(readXLSFile($info['full_path']));
+			
+		}
+
+
+	}
 }
 
 ?>

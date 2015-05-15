@@ -1,0 +1,11 @@
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed'); ?>
+
+ERROR - 2015-05-15 00:01:55 --> Severity: 8192  --> mysql_pconnect(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead F:\Workbench\Projects\bsi\sales-v1\system\database\drivers\mysql\mysql_driver.php 88
+ERROR - 2015-05-15 00:04:07 --> Severity: 8192  --> mysql_pconnect(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead F:\Workbench\Projects\bsi\sales-v1\system\database\drivers\mysql\mysql_driver.php 88
+ERROR - 2015-05-15 00:05:29 --> Severity: 8192  --> mysql_pconnect(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead F:\Workbench\Projects\bsi\sales-v1\system\database\drivers\mysql\mysql_driver.php 88
+ERROR - 2015-05-15 00:05:30 --> Severity: 8192  --> mysql_pconnect(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead F:\Workbench\Projects\bsi\sales-v1\system\database\drivers\mysql\mysql_driver.php 88
+ERROR - 2015-05-15 00:05:30 --> Severity: 8192  --> mysql_pconnect(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead F:\Workbench\Projects\bsi\sales-v1\system\database\drivers\mysql\mysql_driver.php 88
+ERROR - 2015-05-15 00:05:30 --> Severity: 8192  --> mysql_pconnect(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead F:\Workbench\Projects\bsi\sales-v1\system\database\drivers\mysql\mysql_driver.php 88
+ERROR - 2015-05-15 00:05:30 --> Severity: 8192  --> mysql_pconnect(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead F:\Workbench\Projects\bsi\sales-v1\system\database\drivers\mysql\mysql_driver.php 88
+ERROR - 2015-05-15 00:05:33 --> Severity: 8192  --> mysql_pconnect(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead F:\Workbench\Projects\bsi\sales-v1\system\database\drivers\mysql\mysql_driver.php 88
+ERROR - 2015-05-15 00:05:35 --> Severity: 8192  --> mysql_pconnect(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead F:\Workbench\Projects\bsi\sales-v1\system\database\drivers\mysql\mysql_driver.php 88
