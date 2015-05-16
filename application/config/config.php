@@ -244,7 +244,7 @@ $config['encryption_key'] = 'keykoto';
 | 'sess_time_to_update'		= how many seconds between CI refreshing Session Information
 |
 */
-$config['sess_cookie_name']		= 'ci_sales-v2';
+$config['sess_cookie_name']		= 'sales-sess-name';
 $config['sess_expiration']		= 60*60*24*5;
 //$config['sess_expire_on_close']	= TRUE;// di ko kailangan sa my_session class
 $config['sess_encrypt_cookie']	= FALSE;

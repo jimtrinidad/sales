@@ -932,6 +932,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 	
 	function program()//ajax request to get the user program
 	{
+
 		if(isset($_POST['id']) && $this->mprograms->checkUP($_POST['id'],$this->my_session->userdata('uid')))
 		{
 			if(isset($_POST['etypeD']))
@@ -1635,13 +1636,267 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 				));
 		} else {
 
-			$info 	= $this->upload->data();
-			echo json_encode(readXLSFile($info['full_path']));
+			$records 	= array();
+			$info 		= $this->upload->data();
+			$xlsResponse= readXLSFile($info['full_path']);
+
+			$this->load->helper('email');
+
+			if (isset($xlsResponse['status']) && $xlsResponse['status']) {
+				
+				$has_error			= false;
+				$required_fields	= array(0,1,9,10);
+
+				foreach ($xlsResponse['data'] as $row) {
+					$all_fields_empty	= true;
+					$fields	= array();
+					foreach ($row as $k => $value) {
+
+						if ($value != '') {
+							$all_fields_empty = false;
+						}
+
+						$field = array(
+								'value'		=> $value,
+								'error'		=> false,
+								'message'	=> ''
+							);
+
+						//required fields
+						if (in_array($k, $required_fields)) {
+							if (trim($value) == '') {
+								$has_error = true;
+								$field['error']		= true;
+								$field['message']	= 'This field is required.';
+							}
+						}
+
+						if ($k == 11) {
+							if ($row[10] == 'Opportunity') {
+								if (trim($value) == '') {
+									$has_error = true;
+									$field['error']		= true;
+									$field['message']	= 'This field is required.';
+								}
+							}
+						}
+
+						//email format if not empty
+						if ($k == 8) {
+							if (trim($value) != '' && !valid_email($value)) {
+								$has_error = true;
+								$field['error']		= true;
+								$field['message']	= 'Invalid email value.';
+							}
+						}
+
+						//pending chance numeric if not empty
+						if($k == 12) {
+							if (trim($value) != '' && (!is_numeric($value) || $value > 100)) {
+								$has_error = true;
+								$field['error']		= true;
+								$field['message']	= 'Invalid chance percentage. Number only and max of 100';
+							}
+						}
+
+						$fields[]	= $field;
+
+					}
+
+					//alteast one field has content
+					if ($all_fields_empty === false) {
+						$records[]	= $fields;
+					}
+
+				}
+
+				if ($has_error === false) {
+					echo json_encode(array(
+							'status'	=> true,
+							'message'	=> 'Please verify this record and then click save button to confirm.',
+							'data'		=> array(
+									'records'	=> $records,
+									'file'		=> $info['file_name']
+								)
+						));
+				} else {
+					echo json_encode(array(
+							'status'	=> false,
+							'message'	=> 'Error found on some of the fields. Please update the file and reupload.',
+							'data'		=> array(
+									'records'	=> $records,
+									'file'		=> $info['file_name']
+								)
+						));
+				}
+
+			} else {
+				echo json_encode(array(
+						'status'	=> false,
+						'message'	=> $xlsResponse['message'],
+						'data'		=> array(
+										'file' => $info['file_name']
+									)
+					));
+			}
 			
 		}
 
+	}
+
+	public function savexls() {
+
+		if (isset($_POST['file']) && isset($_POST['dateID']) && isset($_POST['userprogid'])) {
+			
+			$file = './uploads/' . $_POST['file'];
+			if (file_exists($file)) {
+
+				$xlsResponse= readXLSFile($file);
+
+				if ($xlsResponse['status'] == true) {
+
+					$row_with_errors	= array();
+
+					foreach ($xlsResponse['data'] as $key=>$row) {
+
+						$infoData	= array(
+								'companyName'	=> ucwords(strtolower($row[3])),
+								'lastname'		=> ucwords(strtolower($row[0])),
+								'firstname'		=> ucwords(strtolower($row[1])),
+								'mi' 			=> ucwords(strtolower($row[2])),
+								'position'		=> ucwords(strtolower($row[4])),
+								'telephone'		=> $row[5],
+								'fax'			=> $row[6],
+								'mobile'		=> $row[7],
+								'email'			=> strtolower($row[8])
+							);
+
+						$infoID = $this->mprograms->addInfo($infoData);
+						if ($infoID) {
+
+							$detailData	= array(
+									'infoID'	=> $infoID,
+									'dateID'	=> $_POST['dateID'],
+									'eventType'	=> $row[9],
+									'remark'	=> $row[10],
+									'opportunityType'	=> $row[11],
+									'note'		=> $row[13],
+									'cPercent'	=> $row[12],
+									'refferal'	=> $row[14]
+								);
+
+							if (!$this->mprograms->addDetails($detailData, $_POST['userprogid'], $infoData)) {
+								$row_with_errors[] = $key + 1;
+							}
+
+						} else {
+							$row_with_errors[] = $key + 1;
+						}
+
+					}
+
+
+					if (count($row_with_errors) == 0) {
+
+						echo json_encode(array(
+								'status'	=> true,
+								'message'	=> 'All excel records has been saved successfully.'
+							));
+
+					} else {
+
+						echo json_encode(array(
+								'status'	=> false,
+								'message'	=> 'Excel records has been saved, except row (' . implode(', ', $row_with_errors) . '). Please retry this rows.'
+							));
+
+					}
+
+				} else {
+					echo json_encode(array(
+							'status'	=> false,
+							'message'	=> 'Saving failed: Cannot read file ' . $_POST['file'] . '.'
+						));
+				}
+
+			} else {
+				echo json_encode(array(
+						'status'	=> false,
+						'message'	=> 'Saving failed: Cannot find file ' . $_POST['file'] . '.'
+					));
+			}
+
+		} else {
+			echo json_encode(array(
+					'status'	=> false,
+					'message'	=> 'Saving failed: missing parameters.'
+				));
+		}
+
+	}
+
+	public function deletexls($file = '') {
+
+		if (isset($_POST['file']) && $_POST['file'] != '') {
+			$file = './uploads/' . $_POST['file'];
+		}
+
+		if ($file !== '') {
+			if (file_exists($file)) {
+				unlink($file);
+			}
+		}
+
+		var_dump($file);
 
 	}
 }
 
+// $info = array('companyName','lastname','firstname','mi','position','telephone','fax','mobile');
+// 			$details = array('dateID','eventType','remark','opportunityType','note','cPercent','refferal');
+// 			$this->load->library('form_validation');
+// 			$errorstr = "";
+
+// 			$this->form_validation->set_rules('eventType','mode of communication','trim|required');
+// 			$this->form_validation->set_rules('companyName','company name','trim');
+// 			$this->form_validation->set_rules('lastname','surname','trim|required');
+// 			$this->form_validation->set_rules('firstname','first name','trim|required');
+// 			$this->form_validation->set_rules('remark','remark','trim|required');
+// 			$this->form_validation->set_rules('email','email','trim|valid_email');
+// 			$this->form_validation->set_rules('cPercent','chance','trim|numeric');
+// 			if($this->form_validation->run()===FALSE)
+// 			{
+// 				$errorstr .= validation_errors();
+// 			}
+			
+// 			if($errorstr=="")
+// 			{
+// 				foreach ($info as $value)
+// 				{
+// 					$datainfo[$value] = ucwords(strtolower($this->input->post($value)));
+// 				}
+// 				$datainfo['email'] = strtolower($this->input->post('email'));
+// 				$infoID = $this->mprograms->addInfo($datainfo);
+// 				if($infoID)
+// 				{
+// 					foreach ($details as $value)
+// 					{
+// 						$datadetails[$value] = $this->input->post($value);
+// 					}
+// 					$datadetails['infoID'] = $infoID;
+// 					if($this->mprograms->addDetails($datadetails,$this->input->post('userprogid'), $datainfo))
+// 					{
+// 						echo "add";
+// 					}
+// 				}
+// 				else
+// 				{
+// 					echo "there is an error on saving.";
+// 				}						
+// 			}	
+// 			else 
+// 			{
+// 				echo $errorstr;
+// 			}					
+// 		}
 ?>

@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title><?php echo $title?></title>
-<script src="<?php echo base_url()?>assets/js/jquery-1.5.2.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="<?php echo base_url()?>assets/js/jquery-1.6.2.min.js" type="text/javascript" charset="utf-8"></script>
 <link type="text/css" href="<?php echo base_url()?>assets/css/styles.css" rel="stylesheet" />
 <?php echo isset($alert)?$alert:""?>
 <script type="text/javascript">

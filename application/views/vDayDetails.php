@@ -57,11 +57,17 @@ $(document).ready(function(){
 		'hideOnOverlayClick': false,
 		onStart 			: function () {
 			$('#uploadMessage').text('Upload excel file to process.').removeClass('text-danger');
-			$('#uploadedXLSContent').html('');
+			$('#uploadedXLSContent').hide();
+			$('#uploadedXLSTableBody').html('');
+			$('#XLSButtonGroup').hide();
 		},
-		'onComplete'		:	function(){
+		onComplete		:	function(){
 			$.fancybox.center();
 			hideMyLoader();
+		},
+		onCleanup 			: function() {
+			//delete if uploaded
+			deleteXLSFile($('#file-input').val());
 		}
 	});	
 
@@ -96,15 +102,35 @@ $(document).ready(function(){
 	$('#fileupload').fileupload({
 		url: './index.php/main/uploadxls/',
 		dataType: 'json',
+		submit: function(e, data) {
+			deleteXLSFile($('#file-input').val());
+			$('#file-input').val('');
+			$('#XLSButtonGroup').hide();
+		},
 		done: function (e, data) {
 			var response 	= data.result;
 			if (response.status) {
-				console.log(response.data);
+				if (response.message) {
+					$('#XLSButtonGroup').show();
+					$('#uploadMessage').text(response.message).removeClass('text-danger');	
+				}
 			} else {
 				$('#uploadMessage').text(response.message).addClass('text-danger');
 				$('#progress .progress-bar').css('width', '0%');
 			}
+
+			if (typeof(response.data.records) !== 'undefined' && response.data.records.length > 0) {
+				setXLSTable(response.data.records);
+			}
+
+			if (typeof(response.data.file)) {
+				$('#file-input').val(response.data.file);
+			}
+
 			hideMyLoader();
+		},
+		fail: function(e, data) {
+			$('#uploadMessage').text('Upload attempt failed. Please refresh and try again.').addClass('text-danger');
 		},
 		progressall: function (e, data) {
 			showMyLoader();
@@ -114,8 +140,89 @@ $(document).ready(function(){
 	})
 	.prop('disabled', !$.support.fileInput)
 	.parent().addClass($.support.fileInput ? undefined : 'disabled');
+
+	$('#saveXLSButton').click(function(){
+		myConfirmBox('Confirm','Are you sure you want to save this records?',
+			function(){
+				var params = {
+					dateID : $("#dateid").val(),
+					userprogid : $("#detailsupid").val(),
+					file : $('#file-input').val()
+				}
+
+				$.ajax({
+					url 	: './index.php/main/savexls',
+					type 	: 'POST',
+					data 	: params,
+					success : function(response) {
+						response = $.parseJSON(response);
+						if (response.status) {
+							deleteXLSFile($('#file-input').val());
+							myMessageBox(response.message,'Success','green',function() {
+								$.fancybox.close();
+								refreshmaincontent(params['userprogid'],params['dateID'],<?php echo my_session_value('showalldays')?"'".my_session_value('showalldays')."'":"''"?>);									
+							});
+						} else {
+							myMessageBox(response.message,'Warning','red',false);
+						}
+						//
+					}
+				});
+			},
+		"Yes","No");
+	});
 			
 });
+
+function deleteXLSFile(file) {
+
+	if (file !== '') {
+		$.ajax({
+			url : './index.php/main/deletexls',
+			type: 'POST',
+			data: {file: file}
+		});
+	}
+
+}
+
+function setXLSTable(records) {
+
+	var content 	= '';
+	for (i in records) {
+		
+		content += '<tr><td>' + (parseInt(i) + 1) + '</td>';
+		content += xlsRow(records[i]);
+		content += '</tr>';
+
+	}
+
+	$('#uploadedXLSTableBody').html(content);
+	$('#uploadedXLSContent').show();
+
+}
+
+function xlsRow(rowData) {
+
+	var content 	= '';
+	for (i in rowData) {
+		field = rowData[i];
+		content += '<td';
+		if (field.error === true) {
+			content += ' class="error" title="' + field.message + '"';
+		}
+		content += '>';
+		content += field.value;
+		content += '</td>';
+	}
+
+	return content;
+
+}
+
+window.onbeforeunload = function(event) {
+    deleteXLSFile($('#file-input').val());
+};
 </script>
 
 <div id="historyholder">
@@ -134,7 +241,7 @@ $(document).ready(function(){
 			Upload Excel Leads
 		</div>
 		<div class="uploadFormBody" style="padding: 10px;">
-			<div style="padding: 10px;">
+			<div style="padding: 10px;position: relative;">
 				<span class="btn btn-success fileinput-button">
 					<i class="glyphicon glyphicon-plus"></i>
 					<span>Upload</span>
@@ -147,8 +254,37 @@ $(document).ready(function(){
 				<div id="progress" class="progress" style="margin-top:10px;width:240px;">
 					<div class="progress-bar progress-bar-success"></div>
 				</div>
+
+				<div id="XLSButtonGroup" class="pull-right" style="position: absolute;top: 10px;right: 10px;">
+					<button id="saveXLSButton" class="btn btn-success">Save</button>
+				</div>
+				<input type="hidden" id="file-input">
 			</div>
-			<div id="uploadedXLSContent"></div>
+			<div id="uploadedXLSContent">
+				<table class="table table-condensed table-striped table-hover">
+					<thead>
+						<tr>
+							<th style="width: 25px;">#</th>
+							<th>Lastname</th>
+							<th>Firstname</th>
+							<th>Mi</th>
+							<th>Company</th>
+							<th>Position</th>
+							<th>Telephone</th>
+							<th>Fax</th>
+							<th>Mobile</th>
+							<th>Email</th>
+							<th title="Communication Mode">Comm. Mode</th>
+							<th>Remark</th>
+							<th title="Opportunity Type">Opp Type</th>
+							<th title="Pending Chance">Chance</th>
+							<th>Note</th>
+							<th>Referral</th>
+						</tr>
+					</thead>
+					<tbody id="uploadedXLSTableBody"></tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 </div>
