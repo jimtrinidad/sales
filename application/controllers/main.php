@@ -1691,11 +1691,20 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 						}
 
 						//pending chance numeric if not empty
-						if($k == 12) {
+						if ($k == 12) {
 							if (trim($value) != '' && (!is_numeric($value) || $value > 100)) {
 								$has_error = true;
 								$field['error']		= true;
 								$field['message']	= 'Invalid chance percentage. Number only and max of 100';
+							}
+						}
+
+						//require at least one contact
+						if (in_array($k, array(5,7,8))) {
+							if ($row[5] == '' && $row[7] == '' && $row[8] == '') {
+								$has_error = true;
+								$field['error']		= true;
+								$field['message']	= 'Please add atleast one way to contact this person.';
 							}
 						}
 
@@ -1847,56 +1856,6 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 			}
 		}
 
-		var_dump($file);
-
 	}
 }
-
-// $info = array('companyName','lastname','firstname','mi','position','telephone','fax','mobile');
-// 			$details = array('dateID','eventType','remark','opportunityType','note','cPercent','refferal');
-// 			$this->load->library('form_validation');
-// 			$errorstr = "";
-
-// 			$this->form_validation->set_rules('eventType','mode of communication','trim|required');
-// 			$this->form_validation->set_rules('companyName','company name','trim');
-// 			$this->form_validation->set_rules('lastname','surname','trim|required');
-// 			$this->form_validation->set_rules('firstname','first name','trim|required');
-// 			$this->form_validation->set_rules('remark','remark','trim|required');
-// 			$this->form_validation->set_rules('email','email','trim|valid_email');
-// 			$this->form_validation->set_rules('cPercent','chance','trim|numeric');
-// 			if($this->form_validation->run()===FALSE)
-// 			{
-// 				$errorstr .= validation_errors();
-// 			}
-			
-// 			if($errorstr=="")
-// 			{
-// 				foreach ($info as $value)
-// 				{
-// 					$datainfo[$value] = ucwords(strtolower($this->input->post($value)));
-// 				}
-// 				$datainfo['email'] = strtolower($this->input->post('email'));
-// 				$infoID = $this->mprograms->addInfo($datainfo);
-// 				if($infoID)
-// 				{
-// 					foreach ($details as $value)
-// 					{
-// 						$datadetails[$value] = $this->input->post($value);
-// 					}
-// 					$datadetails['infoID'] = $infoID;
-// 					if($this->mprograms->addDetails($datadetails,$this->input->post('userprogid'), $datainfo))
-// 					{
-// 						echo "add";
-// 					}
-// 				}
-// 				else
-// 				{
-// 					echo "there is an error on saving.";
-// 				}						
-// 			}	
-// 			else 
-// 			{
-// 				echo $errorstr;
-// 			}					
-// 		}
 ?>
