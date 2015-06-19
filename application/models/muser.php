@@ -102,7 +102,7 @@ class Muser extends CI_Model
 		$data = $this->db->query($sql)->row_array();
 		if(!$data)
 		{
-			$this->db->query("INSERT tb_login_attempts VALUES('','{$ip}','{$username}',1,'".date("Y-m-d H:i:s",strtotime(NOW))."')");
+			$this->db->query("INSERT tb_login_attempts VALUES(null,'{$ip}','{$username}',1,'".date("Y-m-d H:i:s",strtotime(NOW))."')");
 		}
 		else
 		{

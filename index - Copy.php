@@ -1,18 +1,4 @@
 <?php
-
-
-//redirect user to local ip if they are in the same network
-if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] == '121.97.247.27') {
-
-	$conn = @fsockopen("192.168.0.107", 8001, $errno, $errstr, 2);
-
-	if ($conn) {      
-	    fclose($conn);
-	    header('Location: http://192.168.0.107:8001/');
-	}
-
-}
-
 session_start();
 
 /*

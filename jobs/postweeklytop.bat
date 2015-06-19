@@ -1,0 +1,1 @@
+\curl "http://localhost:8001/index.php/cronjobs/post_weekly_top/weeklykey"
