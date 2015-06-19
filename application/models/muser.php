@@ -102,7 +102,7 @@ class Muser extends CI_Model
 		$data = $this->db->query($sql)->row_array();
 		if(!$data)
 		{
-			$this->db->query("INSERT tb_login_attempts VALUES('','{$ip}','{$username}',1,'".date("Y-m-d H:i:s",strtotime(NOW))."')");
+			$this->db->query("INSERT tb_login_attempts VALUES(null,'{$ip}','{$username}',1,'".date("Y-m-d H:i:s",strtotime(NOW))."')");
 		}
 		else
 		{
@@ -183,11 +183,11 @@ class Muser extends CI_Model
 			{
 				if($this->db->get_where('tb_programs',array('id'=>$program))->num_rows()>0)
 				{
-					$sql = "INSERT tb_user_program VALUES('','$program','$id','1')"; 
+					$sql = "INSERT tb_user_program VALUES(null,'$program','$id','1')"; 
 					$this->db->query($sql);	
 					$upid = $this->db->insert_id();
 					//$this->db->set('userID',$id)->set('userProgramID',$upid)->insert('tb_user_archive');// also add to the user archive
-					$sql = "INSERT tb_user_archive VALUES('','$id','$upid','1')"; // also add to the user archive
+					$sql = "INSERT tb_user_archive VALUES(null,'$id','$upid','1')"; // also add to the user archive
 					$this->db->query($sql);
 				}
 			}
@@ -199,7 +199,7 @@ class Muser extends CI_Model
 			{
 				if($this->db->get_where('tb_user_program',array('id'=>$archive))->num_rows()>0)
 				{
-					$sql = "INSERT tb_user_archive VALUES('','$id','$archive','1')"; 
+					$sql = "INSERT tb_user_archive VALUES(null,'$id','$archive','1')"; 
 					$this->db->query($sql);	
 				}
 			}
@@ -263,7 +263,7 @@ class Muser extends CI_Model
 				{
 					if($this->db->get_where('tb_user_program',array('id'=>$archive))->num_rows()>0)
 					{
-						$sql = "INSERT tb_user_archive VALUES('','$id','$archive','1')"; // also add to the user archive
+						$sql = "INSERT tb_user_archive VALUES(null,'$id','$archive','1')"; // also add to the user archive
 						$this->db->query($sql);
 						if($this->db->affected_rows()>0)
 						{
@@ -315,11 +315,11 @@ class Muser extends CI_Model
 				{
 					if($this->db->get_where('tb_programs',array('id'=>$program))->num_rows()>0)
 					{
-						$sql = "INSERT tb_user_program VALUES('','$program','$id','1')";
+						$sql = "INSERT tb_user_program VALUES(null,'$program','$id','1')";
 						$this->db->query($sql);	
 						$upid = $this->db->insert_id();
 						//$this->db->set('userID',$id)->set('userProgramID',$upid)->insert('tb_user_archive');// also add to the user archive
-						$sql = "INSERT tb_user_archive VALUES('','$id','$upid',1)"; // also add to the user archive
+						$sql = "INSERT tb_user_archive VALUES(null,'$id','$upid',1)"; // also add to the user archive
 						$this->db->query($sql);
 						if($this->db->affected_rows()>0)
 						{
