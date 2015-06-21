@@ -1657,7 +1657,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 							$all_fields_empty = false;
 						}
 
-						$value = preg_replace('/[\x00-\x1f]/', '?', $value);
+						$value = utf8_encode($value);
 
 						$field = array(
 								'value'		=> $value,
