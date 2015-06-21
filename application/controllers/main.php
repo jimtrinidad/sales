@@ -1658,6 +1658,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 						}
 
 						$value = mb_convert_encoding($value, 'UTF-8', 'auto');
+						echo mb_detect_encoding($value);
 
 
 						$field = array(
