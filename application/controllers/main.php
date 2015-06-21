@@ -1657,7 +1657,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 							$all_fields_empty = false;
 						}
 
-						$value = remove_utf8_bom($value);
+						$value = mb_convert_encoding($value, 'UTF-8', 'auto');
 
 
 						$field = array(
@@ -1777,7 +1777,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 					foreach ($xlsResponse['data'] as $key=>$row) {
 
 						foreach ($row as $i=>$v) {
-							$row[$i] = remove_utf8_bom($v);
+							$row[$i] = mb_convert_encoding($v, 'UTF-8', 'auto');
 						}
 
 						$infoData	= array(
