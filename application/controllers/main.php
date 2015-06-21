@@ -1657,8 +1657,8 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 							$all_fields_empty = false;
 						}
 
-						$value = preg_replace('/^\xEF\xBB\xBF/', '*', $value);
-						
+						$value = remove_utf8_bom($value);
+
 
 						$field = array(
 								'value'		=> $value,
@@ -1777,7 +1777,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 					foreach ($xlsResponse['data'] as $key=>$row) {
 
 						foreach ($row as $i=>$v) {
-							$row[$i] = preg_replace('/^\xEF\xBB\xBF/', '?', $v);
+							$row[$i] = remove_utf8_bom($v);
 						}
 
 						$infoData	= array(
