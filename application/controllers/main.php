@@ -1657,8 +1657,6 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 							$all_fields_empty = false;
 						}
 
-						$value = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/u', '*', $value);
-
 						$field = array(
 								'value'		=> $value,
 								'error'		=> false,
@@ -1774,10 +1772,6 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 					$row_with_errors	= array();
 
 					foreach ($xlsResponse['data'] as $key=>$row) {
-
-						foreach ($row as $i=>$v) {
-							$row[$i] = preg_replace('/[\x00-\x1f]/', '?', $v);
-						}
 
 						$infoData	= array(
 								'companyName'	=> ucwords(strtolower($row[3])),
