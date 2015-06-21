@@ -1774,7 +1774,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 					foreach ($xlsResponse['data'] as $key=>$row) {
 
 						foreach ($row as $i=>$v) {
-							$row[$i] = trim($v);
+							$row[$i] = preg_replace('/[\x00-\x1f]/', '?', trim($v));
 						}
 
 						$infoData	= array(
