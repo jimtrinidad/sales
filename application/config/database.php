@@ -43,15 +43,9 @@ $active_record = TRUE;
 
 $db['default']['hostname'] = 'localhost';
 $db['default']['username'] = 'root';
-<<<<<<< HEAD
-$db['default']['password'] = 'bsiserver';
-$db['default']['database'] = 'db_sales_live';
-$db['default']['dbdriver'] = 'mysqli';
-=======
 $db['default']['password'] = '';
 $db['default']['database'] = 'salesv1';
 $db['default']['dbdriver'] = 'mysql';
->>>>>>> 7354b95bfeba2d8174dd2879f3a68d7d01a343f3
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
 $db['default']['db_debug'] = TRUE;
