@@ -1649,12 +1649,16 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 
 				foreach ($xlsResponse['data'] as $row) {
 					$all_fields_empty	= true;
+					$row_error 			= false;
 					$fields	= array();
 					foreach ($row as $k => $value) {
 
 						if ($value != '') {
 							$all_fields_empty = false;
 						}
+
+						$value = @iconv('ASCII', 'ISO-8859-1//TRANSLIT', $value);
+
 
 						$field = array(
 								'value'		=> $value,
@@ -1665,7 +1669,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 						//required fields
 						if (in_array($k, $required_fields)) {
 							if (trim($value) == '') {
-								$has_error = true;
+								$row_error = true;
 								$field['error']		= true;
 								$field['message']	= 'This field is required.';
 							}
@@ -1674,7 +1678,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 						if ($k == 11) {
 							if ($row[10] == 'Opportunity') {
 								if (trim($value) == '') {
-									$has_error = true;
+									$row_error = true;
 									$field['error']		= true;
 									$field['message']	= 'This field is required.';
 								}
@@ -1684,7 +1688,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 						//email format if not empty
 						if ($k == 8) {
 							if (trim($value) != '' && !valid_email($value)) {
-								$has_error = true;
+								$row_error = true;
 								$field['error']		= true;
 								$field['message']	= 'Invalid email value.';
 							}
@@ -1693,7 +1697,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 						//pending chance numeric if not empty
 						if ($k == 12) {
 							if (trim($value) != '' && (!is_numeric($value) || $value > 100)) {
-								$has_error = true;
+								$row_error = true;
 								$field['error']		= true;
 								$field['message']	= 'Invalid chance percentage. Number only and max of 100';
 							}
@@ -1702,7 +1706,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 						//require at least one contact
 						if (in_array($k, array(5,7,8))) {
 							if ($row[5] == '' && $row[7] == '' && $row[8] == '') {
-								$has_error = true;
+								$row_error = true;
 								$field['error']		= true;
 								$field['message']	= 'Please add atleast one way to contact this person.';
 							}
@@ -1715,6 +1719,10 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 					//alteast one field has content
 					if ($all_fields_empty === false) {
 						$records[]	= $fields;
+						//only have to update has_error if there no previous error
+						if ($has_error === false) {
+							$has_error = $row_error;
+						}
 					}
 
 				}
@@ -1767,6 +1775,19 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 					$row_with_errors	= array();
 
 					foreach ($xlsResponse['data'] as $key=>$row) {
+
+						$empty_row = true;
+						foreach ($row as $i=>$v) {
+							if (trim($v) != '') {
+								$empty_row = false;
+								$row[$i] = @iconv('ASCII', 'ISO-8859-1//TRANSLIT', $v);
+							}
+						}
+
+						//skip empty rows
+						if ($empty_row === true) {
+							continue;
+						}
 
 						$infoData	= array(
 								'companyName'	=> ucwords(strtolower($row[3])),
