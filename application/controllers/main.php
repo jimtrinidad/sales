@@ -1657,8 +1657,6 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 							$all_fields_empty = false;
 						}
 
-						//$value = iconv('ASCII', 'UTF-8//TRANSLIT', $value);
-
 
 						$field = array(
 								'value'		=> $value,
@@ -1780,7 +1778,6 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 						foreach ($row as $i=>$v) {
 							if (trim($v) != '') {
 								$empty_row = false;
-								//$row[$i] = iconv('ASCII', 'UTF-8//TRANSLIT', $v);
 							}
 						}
 
