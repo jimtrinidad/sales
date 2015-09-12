@@ -565,6 +565,8 @@ class Schedule extends CI_Controller
                                 $_POST['until_date'] = '';
                             }
                             $this->validate->set_rules('until_date','generate schedule limit date','trim|required');                            
+                        } else {
+                        	$_POST['until_date'] = '0000-00-00';
                         }
 	
 			$logo = $this->input->post('logo');
@@ -576,6 +578,9 @@ class Schedule extends CI_Controller
 			
 			if($this->validate->run()===TRUE)
 			{
+				if(isset($_POST['until_date']) && $_POST['until_date'] == ''){
+                    $_POST['until_date'] = '0000-00-00';
+                }
 				if(isset($_POST['id']))
 				{
 					$this->update_program_settings($_POST['id'], $_POST);

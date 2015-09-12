@@ -9,7 +9,7 @@ if (isset($_FILES['image'])) {
 
 	$type = @explode('/', $_FILES['image']['type']);
 	$type = isset($type[1]) ? $type[1] : '';
-	
+
 	$type = ($type != 'pjpeg') ? $type : 'jpeg';
 	
 	$img_types = array('jpg', 'jpeg', 'gif', 'png');
@@ -17,7 +17,7 @@ if (isset($_FILES['image'])) {
 	if (in_array(strtolower($type), $img_types)) {
 		$file_temp_name = substr(md5(time() . $div_id), 0, 14) . 'n' . '.' . $type;
 		
-		$fname = "photos/temp/" . $file_temp_name;
+		$fname = "photos" . DIRECTORY_SEPARATOR . "temp" . DIRECTORY_SEPARATOR . $file_temp_name;
 		$afname = "photos/temp/" . $file_temp_name;
 		
 		if (move_uploaded_file($ftmp, $fname)){

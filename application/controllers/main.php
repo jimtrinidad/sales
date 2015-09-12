@@ -805,6 +805,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 				case 'Monthly':
 							$count = round(($date_to-$date_from)/2629743);
                                                         $i = $count;
+                                                        $date_to = strtotime(date("F", $date_to) . "1");
 							while($i >= 1){
 								
 								$weeks[date('Y-m-d',strtotime ( "-{$i} month" , $date_to))] = $this->mreports->getGroupWon('previous',$i,'MONTH','%Y-%m')->row()->wons;
@@ -1657,6 +1658,8 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 							$all_fields_empty = false;
 						}
 
+						$value = trim($value);
+
 
 						$field = array(
 								'value'		=> $value,
@@ -1670,6 +1673,14 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 								$row_error = true;
 								$field['error']		= true;
 								$field['message']	= 'This field is required.';
+							}
+						}
+
+						if ($k == 2) {
+							if (strlen($value) > 2) {
+								$row_error = true;
+								$field['error']		= true;
+								$field['message']	= 'Invaliad MI value (max of 2 characters).';
 							}
 						}
 
@@ -1787,15 +1798,15 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 						}
 
 						$infoData	= array(
-								'companyName'	=> ucwords(strtolower($row[3])),
-								'lastname'		=> ucwords(strtolower($row[0])),
-								'firstname'		=> ucwords(strtolower($row[1])),
-								'mi' 			=> ucwords(strtolower($row[2])),
-								'position'		=> ucwords(strtolower($row[4])),
-								'telephone'		=> $row[5],
-								'fax'			=> $row[6],
-								'mobile'		=> $row[7],
-								'email'			=> strtolower($row[8])
+								'companyName'	=> trim(ucwords(strtolower($row[3]))),
+								'lastname'		=> trim(ucwords(strtolower($row[0]))),
+								'firstname'		=> trim(ucwords(strtolower($row[1]))),
+								'mi' 			=> trim(ucwords(strtolower($row[2]))),
+								'position'		=> trim(ucwords(strtolower($row[4]))),
+								'telephone'		=> trim($row[5]),
+								'fax'			=> trim($row[6]),
+								'mobile'		=> trim($row[7]),
+								'email'			=> trim(strtolower($row[8]))
 							);
 
 						$infoID = $this->mprograms->addInfo($infoData);
@@ -1807,9 +1818,9 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 									'eventType'	=> $row[9],
 									'remark'	=> $row[10],
 									'opportunityType'	=> $row[11],
-									'note'		=> $row[13],
-									'cPercent'	=> $row[12],
-									'refferal'	=> $row[14]
+									'note'		=> trim($row[13]),
+									'cPercent'	=> trim($row[12]),
+									'refferal'	=> trim($row[14])
 								);
 
 							if (!$this->mprograms->addDetails($detailData, $_POST['userprogid'], $infoData)) {
