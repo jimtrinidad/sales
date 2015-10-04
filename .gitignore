@@ -1,3 +1,5 @@
 application/config/
 application/config/database.php
 application/logs/
+application/config/database.php
+template.xlsx
