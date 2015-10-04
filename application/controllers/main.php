@@ -1646,7 +1646,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 			if (isset($xlsResponse['status']) && $xlsResponse['status']) {
 				
 				$has_error			= false;
-				$required_fields	= array(0,1,9,10);
+				$required_fields	= array(0,1);
 
 				foreach ($xlsResponse['data'] as $row) {
 					$all_fields_empty	= true;
@@ -1684,14 +1684,19 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 							}
 						}
 
-						if ($k == 11) {
-							if ($row[10] == 'Opportunity') {
-								if (trim($value) == '') {
-									$row_error = true;
-									$field['error']		= true;
-									$field['message']	= 'This field is required.';
-								}
-							}
+						if ($k == 9 && trim($value) == '') {
+							//set default eventtype
+							$field['value'] = 'Outgoing Mail';
+						}
+
+						if ($k == 10 && trim($value) == '') {
+							//set default remark
+							$field['value'] = 'Opportunity';
+						}
+
+						if ($k == 11 && trim($value) == '') {
+							//set default opptype
+							$field['value'] = 'Pending';
 						}
 
 						//email format if not empty
@@ -1782,6 +1787,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 				if ($xlsResponse['status'] == true) {
 
 					$row_with_errors	= array();
+					$added_ctr 			= 0;
 
 					foreach ($xlsResponse['data'] as $key=>$row) {
 
@@ -1797,6 +1803,21 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 							continue;
 						}
 
+						if (trim($row[9]) == '') {
+							//set default eventtype
+							$row[9] = 'Outgoing Mail';
+						}
+
+						if (trim($row[10]) == '') {
+							//set default remark
+							$row[10] = 'Opportunity';
+						}
+
+						if (trim($row[11]) == '') {
+							//set default opptype
+							$row[11] = 'Pending';
+						}
+
 						$infoData	= array(
 								'companyName'	=> trim(ucwords(strtolower($row[3]))),
 								'lastname'		=> trim(ucwords(strtolower($row[0]))),
@@ -1809,26 +1830,53 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 								'email'			=> trim(strtolower($row[8]))
 							);
 
-						$infoID = $this->mprograms->addInfo($infoData);
-						if ($infoID) {
+						$response = $this->mprograms->checkLeadsInfoExists(array(
+								'userprogid' 	=> $_POST['userprogid'],
+								'lastname'		=> $infoData['lastname'],
+								'firstname'		=> $infoData['firstname'],
+								'companyName'	=> $infoData['companyName']
+							));
 
-							$detailData	= array(
-									'infoID'	=> $infoID,
-									'dateID'	=> $_POST['dateID'],
-									'eventType'	=> $row[9],
-									'remark'	=> $row[10],
-									'opportunityType'	=> $row[11],
-									'note'		=> trim($row[13]),
-									'cPercent'	=> trim($row[12]),
-									'refferal'	=> trim($row[14])
-								);
+						if ($response === false) {
 
-							if (!$this->mprograms->addDetails($detailData, $_POST['userprogid'], $infoData)) {
+							$infoID = $this->mprograms->addInfo($infoData);
+							if ($infoID) {
+
+								$detailData	= array(
+										'infoID'	=> $infoID,
+										'dateID'	=> $_POST['dateID'],
+										'eventType'	=> $row[9],
+										'remark'	=> $row[10],
+										'opportunityType'	=> $row[11],
+										'note'		=> trim($row[13]),
+										'cPercent'	=> trim($row[12]),
+										'refferal'	=> trim($row[14])
+									);
+
+								if (!$this->mprograms->addDetails($detailData, $_POST['userprogid'], $infoData)) {
+									$row_with_errors[] = $key + 1;
+								} else {
+									$added_ctr += 1;
+								}
+
+							} else {
 								$row_with_errors[] = $key + 1;
 							}
 
 						} else {
-							$row_with_errors[] = $key + 1;
+							//just update existing
+							$this->mprograms->editInfo($infoData, $response['infoID']);
+
+							$detailData	= array(
+										'eventType'	=> $row[9],
+										'remark'	=> $row[10],
+										'opportunityType'	=> $row[11],
+										'note'		=> trim($row[13]),
+										'cPercent'	=> trim($row[12]),
+										'refferal'	=> trim($row[14])
+									);
+
+							$this->mprograms->editDetails($detailData,$response['detailID']);
 						}
 
 					}
@@ -1838,7 +1886,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 
 						echo json_encode(array(
 								'status'	=> true,
-								'message'	=> 'All excel records has been saved successfully.'
+								'message'	=> "{$added_ctr} records has been added successfully."
 							));
 
 					} else {

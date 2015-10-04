@@ -555,38 +555,61 @@ class Mprograms extends CI_Model
 		return $this->db->query($sql)->result_array();
 	}
         
-        function saveDeletedBackup($data)
+    function saveDeletedBackup($data)
+    {
+        $this->db->set($data);
+        $this->db->insert('tb_deletedbackup');
+    }
+    
+    function checkInBackup($data)
+    {
+        $sql = "SELECT id,eventTime
+                FROM tb_deletedbackup
+                WHERE firstname = '{$data['firstname']}'
+                AND lastname = '{$data['lastname']}'
+                AND mi = '{$data['mi']}'
+                AND email = '{$data['email']}'
+                AND userprogid = {$data['upid']}
+                ORDER BY id DESC
+                LIMIT 1";
+                
+        if($this->db->query($sql)->num_rows()>0)
         {
-            $this->db->set($data);
-            $this->db->insert('tb_deletedbackup');
+                $data = $this->db->query($sql)->row();
+                //update restored data
+                $this->db->where('id',$data->id);
+                $this->db->set('restored_date',NOW);
+                $this->db->update('tb_deletedbackup');
+                
+                return $data;
         }
         
-        function checkInBackup($data)
-        {
-            $sql = "SELECT id,eventTime
-                    FROM tb_deletedbackup
-                    WHERE firstname = '{$data['firstname']}'
-                    AND lastname = '{$data['lastname']}'
-                    AND mi = '{$data['mi']}'
-                    AND email = '{$data['email']}'
-                    AND userprogid = {$data['upid']}
-                    ORDER BY id DESC
-                    LIMIT 1";
-                    
-            if($this->db->query($sql)->num_rows()>0)
-            {
-                    $data = $this->db->query($sql)->row();
-                    //update restored data
-                    $this->db->where('id',$data->id);
-                    $this->db->set('restored_date',NOW);
-                    $this->db->update('tb_deletedbackup');
-                    
-                    return $data;
-            }
-            
-            return false;
-        }
+        return false;
+    }
+
+    function checkLeadsInfoExists($data) {
+
+    	$sql = "SELECT i.id AS infoID,dt.id AS detailID,lastname, firstname, POSITION, companyName
+				FROM tb_information i
+				JOIN tb_details dt ON i.id = dt.infoID
+				WHERE dt.dateID IN (SELECT d.id FROM tb_dates d WHERE userProgramID = ?)
+				AND lastname = ?
+				AND firstname = ?
+				AND companyName = ?";
+
+		$q 	= $this->db->query($sql, array(
+				$data['userprogid'],
+				$data['lastname'],
+				$data['firstname'],
+				$data['companyName']
+			));
+
+		if ($q->num_rows() > 0) {
+			return $q->row_array();
+		}
+
+		return false;
+
+    }
 
 }
-
-?>
