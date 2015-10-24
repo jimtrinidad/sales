@@ -592,7 +592,8 @@ class Mprograms extends CI_Model
     	$sql = "SELECT i.id AS infoID,dt.id AS detailID,lastname, firstname, POSITION, companyName
 				FROM tb_information i
 				JOIN tb_details dt ON i.id = dt.infoID
-				WHERE dt.dateID IN (SELECT d.id FROM tb_dates d WHERE userProgramID = ?)
+				JOIN tb_dates d ON d.id = dt.dateID
+				WHERE d.userProgramID = ?
 				AND lastname = ?
 				AND firstname = ?
 				AND companyName = ?";
