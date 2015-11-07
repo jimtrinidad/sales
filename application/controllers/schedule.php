@@ -734,7 +734,7 @@ class Schedule extends CI_Controller
 			$this->validate->set_error_delimiters('','<br>');
 			
 			$return['status'] = "";
-			$this->validate->set_rules('end_date','program start date','trim|required|callback_valid_date');
+			$this->validate->set_rules('end_date','program start date','trim|required');
 	
 			if($this->validate->run()===TRUE)
 			{
