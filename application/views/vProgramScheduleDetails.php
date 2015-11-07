@@ -10,7 +10,7 @@
 					<legend style="font-size: 10px">Marketing Period</legend>				
 					<div class="post-author" style="font-size: 10px;"><h5>From</h5> : <?php echo date('F j, Y',strtotime($start_date))?></div>
 					<div class="post-author" style="font-size: 10px;"><h5>To</h5> : <?php echo date('F j, Y',strtotime($end_date))?></div>
-					<?php if( date('Y',strtotime($end_date)) >= date('Y',strtotime(NOW)) AND (userPrivilege('change_marketing_period') OR userPrivilege('isAdmin'))):?>		
+					<?php if( (date('Y',strtotime($end_date)) >= date('Y',strtotime(NOW)) AND (userPrivilege('change_marketing_period') OR userPrivilege('isAdmin'))) OR my_session_value('uid') == 1 ):?>		
 					<a class="editProgramSchedule" id="<?php echo $schedule_id?>">edit</a>
 					<?php endif;?>
                     <?php if(my_session_value('uid') == 1):?>		
