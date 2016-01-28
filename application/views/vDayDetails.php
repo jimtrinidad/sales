@@ -1,9 +1,12 @@
 <script src="<?php echo base_url()?>assets/js/jquery.ui.widget.js"></script>
 <script src="<?php echo base_url()?>assets/js/jquery.iframe-transport.js"></script>
 <script src="<?php echo base_url()?>assets/js/jquery.fileupload.js"></script>
+<script src="<?php echo base_url()?>assets/js/jquery-ui-timepicker-addon-i18n.min.js"></script>
+<script src="<?php echo base_url()?>assets/js/jquery-ui-timepicker-addon.min.js"></script>
 <link type="text/css" href="<?php echo base_url()?>assets/css/jquery.fileupload-ui.css" rel="stylesheet" />
 <link type="text/css" href="<?php echo base_url()?>assets/css/bootstrap.min.css" rel="stylesheet" />
 <link type="text/css" href="<?php echo base_url()?>assets/css/jquery.fileupload.css" rel="stylesheet" />
+<link type="text/css" href="<?php echo base_url()?>assets/css/jquery-ui-timepicker-addon.min.css" rel="stylesheet" />
 <script type="text/javascript">
 
 $(document).ready(function(){
@@ -147,7 +150,8 @@ $(document).ready(function(){
 				var params = {
 					dateID : $("#dateid").val(),
 					userprogid : $("#detailsupid").val(),
-					file : $('#file-input').val()
+					file : $('#file-input').val(),
+					time : $('#leadsDatetime').val()
 				}
 
 				$.ajax({
@@ -255,8 +259,9 @@ window.onbeforeunload = function(event) {
 					<div class="progress-bar progress-bar-success"></div>
 				</div>
 
-				<div id="XLSButtonGroup" class="pull-right" style="position: absolute;top: 10px;right: 10px;">
-					<button id="saveXLSButton" class="btn btn-success">Save</button>
+				<div class="pull-right" style="position: absolute;top: 10px;right: 10px;">
+					<input id="leadsDatetime" type="text" placeholder="Leads datetime. Default to current time." class="form-control" style="display: inline; padding: 6px; height: inherit;top: 2px;position: relative;width: 260px;">
+					<span id="XLSButtonGroup" ><button id="saveXLSButton" class="btn btn-success">Save</button></span>
 				</div>
 				<input type="hidden" id="file-input">
 			</div>
@@ -710,6 +715,13 @@ $(document).ready(function(){
 			$("#history_panel").animate({"left": "-430px"}, "fast");
 			side_panel = false;
 		}
-	});			
+	});	
+
+
+	$('#leadsDatetime').datetimepicker({
+		dateFormat: 'yy-mm-dd',
+		showButtonPanel: false,
+		maxDate: 0
+	});		
 });
 </script>

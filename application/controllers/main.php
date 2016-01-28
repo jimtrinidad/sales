@@ -1778,7 +1778,7 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 	public function savexls() {
 
 		if (isset($_POST['file']) && isset($_POST['dateID']) && isset($_POST['userprogid'])) {
-			
+
 			$file = './uploads/' . $_POST['file'];
 			if (file_exists($file)) {
 
@@ -1853,7 +1853,12 @@ if($weeks[date('Y-m-d',strtotime ( "-{$i} week" , $date_to))] >= 300) {
 										'refferal'	=> trim($row[14])
 									);
 
-								if (!$this->mprograms->addDetails($detailData, $_POST['userprogid'], $infoData)) {
+								$time = NOW;
+								if (strtotime($_POST['time']) !== false) {
+									$time = date("Y-m-d G:i:s", strtotime($_POST['time']));
+								}
+
+								if (!$this->mprograms->addDetails($detailData, $_POST['userprogid'], $infoData, $time)) {
 									$row_with_errors[] = $key + 1;
 								} else {
 									$added_ctr += 1;
