@@ -203,7 +203,7 @@ class Mprograms extends CI_Model
 	}
 	
 	//add details
-	function addDetails($data,$upid,$datainfo, $time = NOW)
+	function addDetails($data,$upid,$datainfo)
 	{
 		$sql = "SELECT * 
 			FROM tb_details d
@@ -234,10 +234,10 @@ class Mprograms extends CI_Model
                     if($backupdata){
                         $this->db->set('time',$backupdata->eventTime);
                     }else{
-                        $this->db->set('time', $time);
+                        $this->db->set('time',NOW);
                     }
                 }else{
-                    $this->db->set('time', $time);
+                    $this->db->set('time',NOW);
                 }                
                 
 		$this->db->set($data);
