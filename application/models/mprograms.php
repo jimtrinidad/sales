@@ -234,12 +234,10 @@ class Mprograms extends CI_Model
                     if($backupdata){
                         $this->db->set('time',$backupdata->eventTime);
                     }else{
-                        //$this->db->set('time',NOW);
-                        $this->db->set('time','2015-12-02 12:10:10');
+                        $this->db->set('time',NOW);
                     }
                 }else{
-                    //$this->db->set('time',NOW);
-                    $this->db->set('time','2015-12-02 12:10:10');
+                    $this->db->set('time',NOW);
                 }                
                 
 		$this->db->set($data);
