@@ -759,7 +759,7 @@ if($weeks[$date] >= 300) {
                         $months = array(1=>'January',2=>'February',3=>'March',4=>'April',5=>'May',6=>'June',7=>'July',8=>'August',9=>'September',10=>'October',11=>'November',12=>'December');
 			
 			$type = isset($_POST['group_type']) ? $_POST['group_type'] : 'Weekly';
-                        $date_from = isset($_POST['date_from']) ? strtotime('next monday', strtotime($_POST['date_from'])) : strtotime('next monday', strtotime('2011-07-07'));
+                        $date_from = isset($_POST['date_from']) ? strtotime('next monday', strtotime($_POST['date_from'])) : strtotime('next monday', strtotime(date('Y') . '-01-01'));
                         
                         $date_to = isset($_POST['date_to']) ? $_POST['date_to'] : NOW;
                         $w = date('w',strtotime($date_to));
