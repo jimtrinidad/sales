@@ -51,7 +51,7 @@ $(document).ready(function(){
 			</select>
                     <span class="range_calendar" style="vertical-align: top">
 			From
-			<input class="date" type="text" id="dateFrom" value="<?php echo date('m/d/Y', strtotime(date('Y') . '-07-07')) ?>"  style="width: 60px;padding: 2px 2px;font-size: 10px;">
+			<input class="date" type="text" id="dateFrom" value="<?php echo date('m/d/Y', strtotime(date('Y') . '-01-01')) ?>"  style="width: 60px;padding: 2px 2px;font-size: 10px;">
 			To
 			<input class="date" type="text" id="dateTo" value="<?php echo date('m/d/Y', strtotime(NOW)) ?>" style="width: 60px;padding: 2px 2px;font-size: 10px;">                        
                     </span>
