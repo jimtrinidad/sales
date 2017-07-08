@@ -12,7 +12,7 @@
 								<div class="ui-widget-header widget-title">
 									<form method="post" id="year_selector_form" action="<?=site_url('schedule')?>" style="display: inline;">
 										<select id="year_selector" name="year_selector" style="font-weight: bold;font-size: 10px;padding: 0;margin: 0;">
-											<?php for($i = date("Y",strtotime(NOW))+1; $i >= 2010; $i--):?>
+											<?php for($i = date("Y",strtotime(NOW))+3; $i >= 2010; $i--):?>
 											<option value="<?php echo $i?>" <?php echo $selected_year == $i ? 'selected="selected"' : ''?>><?=$i?></option>
 											<?php endfor;?>
 										</select>

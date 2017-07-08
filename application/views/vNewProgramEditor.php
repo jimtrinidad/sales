@@ -123,19 +123,6 @@
 							<?php endforeach;;?>
 						</select>	
 			   		</div>
-                                        <?php if( !isset($next_date) OR (isset($next_date) AND $next_date == '0000-00-00')):?>	
-                                        <div class="half halfleft radio" style="padding-top: 1px;">
-                                            <input type="radio" id="auto" value="auto" name="generate_type" checked="checked">
-                                            <label for="auto">Automatically generate schedule</label>
-                                            <input type="radio" id="limit" name="generate_type" value="limited">
-                                            <label for="limit">Limit generated schedule</label>
-                                        </div>
-                                        <div id="until_date_div" class="half hidden">
-			   			<label for="tempDateUntil">Generate limit date</label>
-						<input type="hidden" maxlength="25" name="until_date" id="until_date" value="<?php echo isset($until_date)?$until_date:""?>">
-                                                <input autocomplete="off" type="text" id="tempDateUntil" value="<?php echo isset($until_date) AND $until_date != '0000-00-00' ? date("M d, Y",strtotime($until_date)) : ''?>">
-			   		</div>
-                                        <?php endif;?>
 			   		<div class="clearer"></div>
 			   </div>
 			</div>
@@ -159,22 +146,6 @@ $(document).ready(function(){
 		yearRange:"c-10:c+10"
 	});
         
-        $("#tempDateUntil").datepicker({
-		changeMonth: true,
-		changeYear: true,
-		dateFormat:"M dd, yy",
-		altFormat: "yy-mm-dd",
-		altField: "#until_date",
-		yearRange:"c-10:c+10"
-	});
-        
-        $('input[name=generate_type]').click(function(){
-           if(this.value == 'limited'){
-               $('#until_date_div').show();
-           }else{
-               $('#until_date_div').hide();
-           } 
-        });
 	
 	$("#editorForm").bind("submit",function(){
 		if(!$(this).hasClass('submitted'))

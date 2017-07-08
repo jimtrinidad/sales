@@ -4,15 +4,21 @@ class Schedule extends CI_Controller
 	function __construct()
 	{
 		parent::__construct();
-		if(!checksession('logged_in'))
-		{
-			$this->my_session->set_userdata('returnUrl',current_url());
-			redirect(site_url('user'));
+		if (isset($_GET['setsched']) && stripos($_SERVER['REQUEST_URI'], 'create_schedule') !== false) {
+			//bypass auth on creating schedule. //for localaccess when seting new active batch 
+		} else {
+
+			if(!checksession('logged_in'))
+			{
+				$this->my_session->set_userdata('returnUrl',current_url());
+				redirect(site_url('user'));
+			}
+			
+			if(!userPrivilege('isAdmin')){
+				if( !userPrivilege('schedule') ) redirect(site_url());
+			} 
+
 		}
-		
-		if(!userPrivilege('isAdmin')){
-			if( !userPrivilege('schedule') ) redirect(site_url());
-		} 
 	}
 	
 	private $months = array(1=>'January',2=>'February',3=>'March',4=>'April',5=>'May',6=>'June',7=>'July',8=>'August',9=>'September',10=>'October',11=>'November',12=>'December');
@@ -112,108 +118,96 @@ class Schedule extends CI_Controller
 		$this->load->view('template',$data);
 	}
 	
-	private function create_schedule()
+	public function create_schedule()
 	{
+		
 		$programs = $this->db->where('status', 1)->get('tb_programtemplate')->result_array();
 		//echo "<pre>";print_r($programs);
 		foreach($programs as $program)
 		{
-			$c = 0;
+			
 			if($program['next_date'] != '0000-00-00')
-			{
-				while ($c < 100)
+			{	
+
+				$current_batch 	= $this->get_last_current_batch($program['id']);
+				$latest_batch 	= $this->get_last_generated_batch($program['id']);
+				// var_dump($latest_batch);
+				// var_dump($latest_batch < ($current_batch + 1));
+				// echo $program['id'] . ' - ' . $current_batch . ' - ' . $latest_batch . '<br>'; //continue;
+				while ($latest_batch < ($current_batch + 1))
 				{
-					//var_dump($i < 10);
-					//echo $i.'<br>';
-					//create new schedule in database when the current program batch ends
-					//var_dump(strtotime($program['next_date']) <= strtotime((date('Y',strtotime(NOW))+1).'-12-31'));
-                                        //echo $program['generate_type'].'-'.$program['next_date'].' | '.$program['until_date'].'-';
-					if(
-                                                (strtotime($program['next_date']) <= strtotime((date('Y',strtotime(NOW))+1).'-12-31'))
-                                                AND (
-                                                        ($program['generate_type'] == 'limited' AND strtotime($program['next_date']) <= strtotime($program['until_date']))
-                                                        OR
-                                                        ($program['generate_type'] == 'auto' OR $program['generate_type'] == '')
-                                                    )
-                                                )
+
+					//ang start date(marketing start) ay ung first session ng previous batch, kapag hindi available, mag backwards ng compute ng time span
+					$start_date = $this->get_start_date($program['id']);
+					if( $start_date == FALSE )
 					{
+						$start_date = date('Y-m-d',strtotime($program['next_date']." -".$program['time_span']." week"));						
+					}
 					
-						//ang start date(marketing start) ay ung first session ng previous batch, kapag hindi available, mag backwards ng compute ng time span
-						$start_date = $this->get_start_date($program['id']);
-						if( $start_date == FALSE )
-						{
-							$start_date = date('Y-m-d',strtotime($program['next_date']." -".$program['time_span']." week"));						
-						}
-						
-						$end_date = $program['next_date'];
-		
-						if(date('N',strtotime($end_date)) >= $program['prefer_day'])
-						{
-							$end_date = date('Y-m-d',strtotime($end_date." +1 week"));
-						}
-						
-						$end_date = date("Y-m-d",strtotime(date('Y',strtotime($end_date)) . 'W' . date('W',strtotime($end_date)) . $program['prefer_day']));
-						
-						$sessions = array();
-						$target = $program['run_session'];
-						for($i = 0;$i < $target;$i++)
-						{
-							$session = '';					
-							$day = strtotime($end_date);
-							$first_session = date("Y-m-d",strtotime(date('Y',$day) . 'W' . date('W',$day) . $program['prefer_day']));
-							$session = date('Y-m-d',strtotime($first_session." +".($i * $program['session_interval'])."day"));
-							
-							if(is_holiday($session))
-							{
-								$target += 1;
-							}
-							else 
-							{
-								$sessions[] = $session;
-							}
-							
-						}						
-						
-						$end_date = $sessions[0]; // ang magiging end date ay ung first day ng session
-						
-						$data = array(
-							'program_setting_id' => $program['id'],
-							'batch' => $program['next_batch'],
-							'start_date' => $start_date,
-							'expected_end_date' => $end_date,
-							'end_date' => $end_date
-							
-						);
-						
-						$this->db->set($data)->insert('tb_program_schedule');
-						$schedule_id = $this->db->insert_id();
+					$end_date = $program['next_date'];
 	
-						foreach($sessions as $session)
-						{
-							//$this->db->set(array('schedule_id'=>$schedule_id,'session_date'=>$session))->insert('tb_program_session');
-							$this->db->set('session_date',$session)
-									->set('schedule_id',$schedule_id)
-									->set('session_speaker',$program['default_speaker'])
-									->set('session_venue',$program['default_venue'])
-									->insert('tb_program_session');
-						}
-						
-						$batch = $data['batch'] + 1;
-						//$next_end_date = date('Y-m-d',strtotime($program['next_date']." +".$program['time_span']." week"));
-						$next_end_date = $this->generate_new_end_date($program['id'],$program['next_date']);					
-						if($this->update_program_settings($program['id'], array('next_batch'=>$batch,'next_date'=>$next_end_date)))
-						{
-							$program['next_batch'] = $batch;
-							$program['next_date'] = $next_end_date;	
-							continue;
-						}
-					}
-					else 
+					if(date('N',strtotime($end_date)) >= $program['prefer_day'])
 					{
-						$c = 100;
+						$end_date = date('Y-m-d',strtotime($end_date." +1 week"));
 					}
 					
-					$c++;
+					$end_date = date("Y-m-d",strtotime(date('Y',strtotime($end_date)) . 'W' . date('W',strtotime($end_date)) . $program['prefer_day']));
+					
+					$sessions = array();
+					$target = $program['run_session'];
+					for($i = 0;$i < $target;$i++)
+					{
+						$session = '';					
+						$day = strtotime($end_date);
+						$first_session = date("Y-m-d",strtotime(date('Y',$day) . 'W' . date('W',$day) . $program['prefer_day']));
+						$session = date('Y-m-d',strtotime($first_session." +".($i * $program['session_interval'])."day"));
+						
+						if(is_holiday($session))
+						{
+							$target += 1;
+						}
+						else 
+						{
+							$sessions[] = $session;
+						}
+						
+					}						
+					
+					$end_date = $sessions[0]; // ang magiging end date ay ung first day ng session
+					
+					$data = array(
+						'program_setting_id' => $program['id'],
+						'batch' => $latest_batch + 1,
+						'start_date' => $start_date,
+						'expected_end_date' => $end_date,
+						'end_date' => $end_date
+						
+					);
+					
+					$this->db->set($data)->insert('tb_program_schedule');
+					$schedule_id = $this->db->insert_id();
+
+					foreach($sessions as $session)
+					{
+						//$this->db->set(array('schedule_id'=>$schedule_id,'session_date'=>$session))->insert('tb_program_session');
+						$this->db->set('session_date',$session)
+								->set('schedule_id',$schedule_id)
+								->set('session_speaker',$program['default_speaker'])
+								->set('session_venue',$program['default_venue'])
+								->insert('tb_program_session');
+					}
+					
+					$batch = $data['batch'];
+					//$next_end_date = date('Y-m-d',strtotime($program['next_date']." +".$program['time_span']." week"));
+					$next_end_date = $this->generate_new_end_date($program['id'],$program['next_date']);					
+					if($this->update_program_settings($program['id'], array('next_batch'=>$batch,'next_date'=>$next_end_date)))
+					{
+						$program['next_batch'] = $batch;
+						$program['next_date'] = $next_end_date;
+					}
+
+					$latest_batch 	= $this->get_last_generated_batch($program['id']);
+
 				}
 			}	
 		
@@ -244,6 +238,28 @@ class Schedule extends CI_Controller
 		$setting = $this->get_programs_setting($id);
 		
 		return date('Y-m-d',strtotime($date_from." +".$setting->time_span." week"));
+	}
+
+
+	private function get_last_current_batch($program_id) {
+		//max batch + 0 because batch field datatype is varchar on tb_programs
+		$sql = "SELECT programTempID,MAX(batch+0) AS batch
+				FROM tb_programs o
+				WHERE programTempID = {$program_id}
+				LIMIT 1";
+
+		$q = $this->db->query($sql);
+		return (int) $q->row()->batch;
+
+	}
+
+	private function get_last_generated_batch($program_id) {
+		$sql = "SELECT program_setting_id, MAX(batch) AS batch
+				FROM tb_program_schedule
+				WHERE program_setting_id = {$program_id}";
+
+		$q = $this->db->query($sql);
+		return (int) $q->row()->batch;
 	}
 	
 	
@@ -559,15 +575,6 @@ class Schedule extends CI_Controller
 			$this->validate->set_rules('default_speaker','default speaker','trim|required');
 			$this->validate->set_rules('default_venue','default venue','trim|required');
                         
-                        if( $this->input->post('generate_type') == 'limited')
-                        {
-                            if($_POST['until_date'] == '0000-00-00'){
-                                $_POST['until_date'] = '';
-                            }
-                            $this->validate->set_rules('until_date','generate schedule limit date','trim|required');                            
-                        } else {
-                        	$_POST['until_date'] = '0000-00-00';
-                        }
 	
 			$logo = $this->input->post('logo');
 			if(strpos($logo, 'temp'))
@@ -576,11 +583,18 @@ class Schedule extends CI_Controller
 			}
 			else unset($_POST['logo']);
 			
+			$_POST['until_date'] = '0000-00-00';
+			
+			if(!isset($_POST['id'])) {
+
+				$_POST['date_added'] = date('Y-m-d');
+				$_POST['generate_type']	= 'auto';
+
+			}
+
 			if($this->validate->run()===TRUE)
 			{
-				if(isset($_POST['until_date']) && $_POST['until_date'] == ''){
-                    $_POST['until_date'] = '0000-00-00';
-                }
+
 				if(isset($_POST['id']))
 				{
 					$this->update_program_settings($_POST['id'], $_POST);
@@ -612,6 +626,8 @@ class Schedule extends CI_Controller
 				{
 					$this->db->set($_POST)->insert('tb_programtemplate');
 				}
+
+				$this->create_schedule();
 			}
 			else 
 			{
@@ -640,6 +656,7 @@ class Schedule extends CI_Controller
 		{
                     if(isset($_SERVER['HTTP_REFERER']) AND strpos($_SERVER['HTTP_REFERER'],'schedule/settings')){
                         $this->db->where('id',$this->uri->segment(3))->set('status',1)->update('tb_programtemplate');
+                        $this->create_schedule();
                     }                    
                     redirect(site_url('schedule/settings'));
                 }

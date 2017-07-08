@@ -103,6 +103,10 @@ class Administrator extends CI_Controller
 					$data['isActive'] = isset($_POST['isActive']) ? 1 : 0;
 					$this->madmin->add_next_program_batch($data);
 				}
+
+				//call schedule generator to generate next batch schedule
+				file_get_contents(site_url('schedule/create_schedule?setsched'));
+
 			}
 			else 
 			{
