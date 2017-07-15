@@ -4,7 +4,7 @@ define('BASEPATH', '');
 
 require_once 'application/config/database.php';
 
-$keep_schedule = 2;
+$keep_schedule = 1;
 
 $SQL = new SQL($db['default']);
 
@@ -28,6 +28,34 @@ and batch > " . ($item['batch'] + $keep_schedule));
 		$SQL->_execute("DELETE FROM tb_program_schedule WHERE schedule_id = " . $schedule['schedule_id']);
 
 	}
+
+	//set new next_date on program template
+ 	set_end_date($item['programTempID'], $SQL);
+
+}
+
+function set_end_date($programID, $SQL) 
+{
+	$sql = "SELECT * 
+			FROM tb_program_schedule
+			WHERE program_setting_id = '{$programID}'
+			ORDER BY end_date DESC";
+
+	$result = $SQL->_execute($sql);
+	$record = $result->fetch_array();
+	if (strtotime($record['end_date']) < time()) {
+		$curent_end_date =  date('Y-m-d');
+	} else {
+		$curent_end_date = $record['end_date'];
+	}
+
+	$response = $SQL->_execute("SELECT * FROM tb_programtemplate WHERE id = {$programID}");
+	$settings = $response->fetch_array();
+
+	// echo $curent_end_date . ' - '. $settings['time_span'] . PHP_EOL;
+	$new_end_date = date('Y-m-d',strtotime($curent_end_date." +".$settings['time_span']." week"));
+
+	$SQL->_execute("UPDATE tb_programtemplate SET next_date = '{$new_end_date}' WHERE id = {$programID}");
 
 }
 

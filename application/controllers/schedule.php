@@ -132,7 +132,7 @@ class Schedule extends CI_Controller
 				$current_batch 	= $this->get_last_current_batch($program['id']);
 				$latest_batch 	= $this->get_last_generated_batch($program['id']);
 				// var_dump($latest_batch);
-				// var_dump($latest_batch < ($current_batch + 1));
+				// var_dump($latest_batch < ($current_batch + 2));
 				// echo $program['id'] . ' - ' . $current_batch . ' - ' . $latest_batch . '<br>'; //continue;
 				while ($latest_batch < ($current_batch + 2))
 				{
