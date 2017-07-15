@@ -134,7 +134,7 @@ class Schedule extends CI_Controller
 				// var_dump($latest_batch);
 				// var_dump($latest_batch < ($current_batch + 1));
 				// echo $program['id'] . ' - ' . $current_batch . ' - ' . $latest_batch . '<br>'; //continue;
-				while ($latest_batch < ($current_batch + 1))
+				while ($latest_batch < ($current_batch + 2))
 				{
 
 					//ang start date(marketing start) ay ung first session ng previous batch, kapag hindi available, mag backwards ng compute ng time span

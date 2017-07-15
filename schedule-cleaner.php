@@ -4,7 +4,7 @@ define('BASEPATH', '');
 
 require_once 'application/config/database.php';
 
-$keep_schedule = 1;
+$keep_schedule = 2;
 
 $SQL = new SQL($db['default']);
 
